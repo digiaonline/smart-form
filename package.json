@@ -1,0 +1,32 @@
+{
+  "name": "@nordsoftware/smart-form",
+  "private": true,
+  "version": "0.1.0-dev.1",
+  "description": "Customizable forms with declarative definition",
+  "main": "bundles/index.bundle.js",
+  "scripts": {
+    "dev": "webpack --watch --colors --progress",
+    "prepublish": "webpack --colors --progress",
+    "postinstall": "webpack --colors --progress"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Unlicensed",
+  "devDependencies": {
+    "babel-core": "^6.17.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-stage-1": "^6.16.0",
+    "webpack": "^1.13.2"
+  },
+  "dependencies": {
+    "lodash": "^4.16.3"
+  },
+  "peerDependencies": {
+    "react": "^15.0.0-0",
+    "redux": "^3.0.0",
+    "react-redux": "^4.0.0",
+    "redux-form": "^6.0.1"
+  }
+}
