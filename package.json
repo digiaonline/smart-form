@@ -6,8 +6,7 @@
   "main": "bundles/index.bundle.js",
   "scripts": {
     "dev": "webpack --watch --colors --progress",
-    "prepublish": "webpack --colors --progress",
-    "postinstall": "webpack --colors --progress"
+    "prepublish": "webpack --colors --progress"
   },
   "keywords": [],
   "author": "",
