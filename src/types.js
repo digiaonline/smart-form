@@ -50,7 +50,7 @@ export type Value =
     // ... or a reference to the value of another field
     type: 'Reference',
     // path is an array of strings, that determines the address to either a field in the current form, or a field in another form
-    path: Array<string> // [thisForm, theNameOfTheOtherField] | [someOtherForm, theNameOfTheOtherField]
+    path: Array<string> // ['currentValue'] ['$currentForm', theNameOfTheOtherField] | [someOtherForm, theNameOfTheOtherField]
   };
 
 export type Condition = boolean | {
