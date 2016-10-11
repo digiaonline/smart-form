@@ -111,7 +111,7 @@ export type ValidatorFunction =
 export type ValidationContext = {
   allValidators: {[type: string]: ValidatorFunction},
   allValues: {[name: string]: mixed},
-  resolveCondition: (condition: Condition, context: ValidationContext) => boolean,
+  resolveCondition: (condition: Condition, currentValue: mixed, context: ValidationContext) => boolean,
   resolveValue: (descriptor: Value, currentValue: mixed, context: ValidationContext) => mixed
 };
 
