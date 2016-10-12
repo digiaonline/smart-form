@@ -56,7 +56,7 @@ module.exports =
 	
 	var _SmartForm2 = _interopRequireDefault(_SmartForm);
 	
-	var _defaultValidators = __webpack_require__(13);
+	var _defaultValidators = __webpack_require__(5);
 	
 	var _defaultValidators2 = _interopRequireDefault(_defaultValidators);
 	
@@ -99,35 +99,35 @@ module.exports =
 	
 	var _DefaultFieldComponent2 = _interopRequireDefault(_DefaultFieldComponent);
 	
-	var _defaultValidators = __webpack_require__(13);
+	var _defaultValidators = __webpack_require__(5);
 	
 	var _defaultValidators2 = _interopRequireDefault(_defaultValidators);
 	
-	var _mapValues = __webpack_require__(5);
+	var _mapValues = __webpack_require__(10);
 	
 	var _mapValues2 = _interopRequireDefault(_mapValues);
 	
-	var _keyBy = __webpack_require__(6);
+	var _keyBy = __webpack_require__(11);
 	
 	var _keyBy2 = _interopRequireDefault(_keyBy);
 	
-	var _get = __webpack_require__(7);
+	var _get = __webpack_require__(12);
 	
 	var _get2 = _interopRequireDefault(_get);
 	
-	var _getResultOfValidationRule = __webpack_require__(8);
+	var _getResultOfValidationRule = __webpack_require__(13);
 	
 	var _getResultOfValidationRule2 = _interopRequireDefault(_getResultOfValidationRule);
 	
-	var _reactRedux = __webpack_require__(9);
+	var _reactRedux = __webpack_require__(14);
 	
-	var _reduxForm = __webpack_require__(10);
+	var _reduxForm = __webpack_require__(15);
 	
-	var _resolveCondition = __webpack_require__(11);
+	var _resolveCondition = __webpack_require__(16);
 	
 	var _resolveCondition2 = _interopRequireDefault(_resolveCondition);
 	
-	var _resolveValue = __webpack_require__(12);
+	var _resolveValue = __webpack_require__(17);
 	
 	var _resolveValue2 = _interopRequireDefault(_resolveValue);
 	
@@ -410,24 +410,128 @@ module.exports =
 
 /***/ },
 /* 5 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = require("lodash/mapValues");
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _validateRequired = __webpack_require__(6);
+	
+	var _validateRequired2 = _interopRequireDefault(_validateRequired);
+	
+	var _validateRequiredIf = __webpack_require__(7);
+	
+	var _validateRequiredIf2 = _interopRequireDefault(_validateRequiredIf);
+	
+	var _validateRequiredIfEnabled = __webpack_require__(8);
+	
+	var _validateRequiredIfEnabled2 = _interopRequireDefault(_validateRequiredIfEnabled);
+	
+	var _validateConditionIsMet = __webpack_require__(9);
+	
+	var _validateConditionIsMet2 = _interopRequireDefault(_validateConditionIsMet);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = { Required: _validateRequired2.default, RequiredIf: _validateRequiredIf2.default, RequiredIfEnabled: _validateRequiredIfEnabled2.default, ConditionIsMet: _validateConditionIsMet2.default };
 
 /***/ },
 /* 6 */
 /***/ function(module, exports) {
 
-	module.exports = require("lodash/keyBy");
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = validateRequired;
+	function validateRequired(rule, _ref) {
+	  var currentValue = _ref.currentValue;
+	
+	  var hasValue = !(currentValue == null || currentValue == undefined || typeof currentValue === 'string' && currentValue.trim().length === 0);
+	
+	  return hasValue ? undefined : rule.message;
+	}
 
 /***/ },
 /* 7 */
 /***/ function(module, exports) {
 
-	module.exports = require("lodash/get");
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = validateRequiredIf;
+	function validateRequiredIf(rule, props) {
+	  var currentValue = props.currentValue;
+	  var resolveCondition = props.resolveCondition;
+	
+	  var hasValue = !(currentValue == null || currentValue == undefined || typeof currentValue === 'string' && currentValue.trim().length === 0);
+	
+	  return !hasValue && resolveCondition(rule.condition, currentValue, props) ? rule.message : undefined;
+	}
 
 /***/ },
 /* 8 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = validateRequiredIfEnabled;
+	function validateRequiredIfEnabled(rule, _ref) {
+	  var currentValue = _ref.currentValue;
+	  var isEnabled = _ref.isEnabled;
+	
+	  var hasValue = !(currentValue == null || currentValue == undefined || typeof currentValue === 'string' && currentValue.trim().length === 0);
+	
+	  return isEnabled && !hasValue ? rule.message : undefined;
+	}
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = validateRequiredIf;
+	function validateRequiredIf(rule, props) {
+	  var currentValue = props.currentValue;
+	  var resolveCondition = props.resolveCondition;
+	
+	
+	  return resolveCondition(rule.condition, currentValue, props) ? undefined : rule.message;
+	}
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	module.exports = require("lodash/mapValues");
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	module.exports = require("lodash/keyBy");
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	module.exports = require("lodash/get");
+
+/***/ },
+/* 13 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -447,19 +551,19 @@ module.exports =
 	}
 
 /***/ },
-/* 9 */
+/* 14 */
 /***/ function(module, exports) {
 
 	module.exports = require("react-redux");
 
 /***/ },
-/* 10 */
+/* 15 */
 /***/ function(module, exports) {
 
 	module.exports = require("redux-form");
 
 /***/ },
-/* 11 */
+/* 16 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -482,14 +586,18 @@ module.exports =
 	    var leftValue = resolveValue(condition.leftValue, currentValue, context);
 	    var rightValue = resolveValue(condition.rightValue, currentValue, context);
 	
-	    return condition.op === '>' ? parseFloat(leftValue) > parseFloat(rightValue) : condition.op === '>=' ? parseFloat(leftValue) >= parseFloat(rightValue) : condition.op === '==' ? leftValue === rightValue : condition.op === '!=' ? leftValue !== rightValue : condition.op === '<' ? parseFloat(leftValue) < parseFloat(rightValue) : condition.op === '<=' ? parseFloat(leftValue) <= parseFloat(rightValue) : true;
+	    return condition.op === '>' ? parseFloat(leftValue) > parseFloat(rightValue) : condition.op === '>=' ? parseFloat(leftValue) >= parseFloat(rightValue) : condition.op === '==' ? leftValue === rightValue : condition.op === '!=' ? leftValue !== rightValue : condition.op === '<' ? parseFloat(leftValue) < parseFloat(rightValue) : condition.op === '<=' ? parseFloat(leftValue) <= parseFloat(rightValue) : condition.op === 'ArrayIncludes' ? Array.isArray(leftValue) && leftValue.indexOf(rightValue) !== -1
+	    // $FlowFixMe
+	    : function () {
+	      throw new Error("Unkown operator " + condition.op);
+	    }();
 	  } else {
 	    throw new Error('Invalid condition object ' + condition);
 	  }
 	}
 
 /***/ },
-/* 12 */
+/* 17 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -520,110 +628,6 @@ module.exports =
 	      throw new Error('Invalid reference path ' + JSON.stringify(path));
 	    }
 	  }
-	}
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _validateRequired = __webpack_require__(14);
-	
-	var _validateRequired2 = _interopRequireDefault(_validateRequired);
-	
-	var _validateRequiredIf = __webpack_require__(15);
-	
-	var _validateRequiredIf2 = _interopRequireDefault(_validateRequiredIf);
-	
-	var _validateRequiredIfEnabled = __webpack_require__(16);
-	
-	var _validateRequiredIfEnabled2 = _interopRequireDefault(_validateRequiredIfEnabled);
-	
-	var _validateConditionIsMet = __webpack_require__(17);
-	
-	var _validateConditionIsMet2 = _interopRequireDefault(_validateConditionIsMet);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	exports.default = { Required: _validateRequired2.default, RequiredIf: _validateRequiredIf2.default, RequiredIfEnabled: _validateRequiredIfEnabled2.default, ConditionIsMet: _validateConditionIsMet2.default };
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = validateRequired;
-	function validateRequired(rule, _ref) {
-	  var currentValue = _ref.currentValue;
-	
-	  var hasValue = !(currentValue == null || currentValue == undefined || typeof currentValue === 'string' && currentValue.trim().length === 0);
-	
-	  return hasValue ? undefined : rule.message;
-	}
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = validateRequiredIf;
-	function validateRequiredIf(rule, props) {
-	  var currentValue = props.currentValue;
-	  var resolveCondition = props.resolveCondition;
-	
-	  var hasValue = !(currentValue == null || currentValue == undefined || typeof currentValue === 'string' && currentValue.trim().length === 0);
-	
-	  return !hasValue && resolveCondition(rule.condition, currentValue, props) ? rule.message : undefined;
-	}
-
-/***/ },
-/* 16 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = validateRequiredIfEnabled;
-	function validateRequiredIfEnabled(rule, _ref) {
-	  var currentValue = _ref.currentValue;
-	  var isEnabled = _ref.isEnabled;
-	
-	  var hasValue = !(currentValue == null || currentValue == undefined || typeof currentValue === 'string' && currentValue.trim().length === 0);
-	
-	  return isEnabled && !hasValue ? rule.message : undefined;
-	}
-
-/***/ },
-/* 17 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = validateRequiredIf;
-	function validateRequiredIf(rule, props) {
-	  var currentValue = props.currentValue;
-	  var resolveCondition = props.resolveCondition;
-	
-	
-	  return resolveCondition(rule.condition, currentValue, props) ? undefined : rule.message;
 	}
 
 /***/ }

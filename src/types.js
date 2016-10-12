@@ -57,7 +57,7 @@ export type Condition = boolean | {
   // A simple comparative op
   type: 'Op',
   // Your ordinary comparison operators
-  op: '>' | '>=' | '==' | '!=' | '<=' | '<',
+  op: '>' | '>=' | '==' | '!=' | '<=' | '<' | 'ArrayIncludes',
   leftValue: Value,
   rightValue: Value
 };

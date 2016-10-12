@@ -18,7 +18,9 @@ export default function resolveCondition(condition: Condition, currentValue: mix
       : condition.op === '!=' ? (leftValue !== rightValue)
       : condition.op === '<' ? (parseFloat(leftValue) < parseFloat(rightValue))
       : condition.op === '<=' ? (parseFloat(leftValue) <= parseFloat(rightValue))
-      : true
+      : condition.op === 'ArrayIncludes' ? Array.isArray(leftValue) && leftValue.indexOf(rightValue) !== -1
+      // $FlowFixMe
+      : (() => {throw new Error("Unkown operator " + condition.op)})()
     );
   } else {
     throw new Error('Invalid condition object ' + condition);
