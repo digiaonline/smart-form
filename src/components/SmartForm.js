@@ -33,7 +33,8 @@ export default connect(
 )(class SmartForm extends Component {
   props: SmartFormProps;
   state: {
-    enabledDisabledMap: {[fieldName: string]: boolean}
+    enabledDisabledMap: {[fieldName: string]: boolean},
+    recentlyChangedMap: {fieldName: string, value: string},
   };
   static defaultProps = {
     reduxFormProps: {},
@@ -47,7 +48,8 @@ export default connect(
   constructor(props: SmartFormProps) {
     super(props);
     this.state = {
-      enabledDisabledMap: {}
+      enabledDisabledMap: {},
+      recentlyChangedMap: {},
     };
 
     // @todo: This is a hack. Remove it, and use context types instead :)
@@ -65,22 +67,45 @@ export default connect(
   }
 
   recalculateState() {
+    const values = this.getValuesOfCurrentForm();
     const template = this.props.formTemplate;
+    const recentlyChanged = this.state.recentlyChangedMap || {}
+
     const listOfEnabledDisabledFlags =
       template.listOfFieldNames
       .map((fieldName) => ({
         fieldName,
         isEnabled: this.calculateIfFieldIsEnabled(fieldName)
       }));
+    const newValues = {}
+    template.listOfFieldNames
+      .forEach((fieldName) => newValues[fieldName] = values[fieldName])
+
+    const changedMap = {}
+    Object.keys(newValues).forEach(value => changedMap[value] = newValues[value] !== recentlyChanged[value])
+
+    this.updateValues(changedMap, template.fieldsByName)
 
     const enabledDisabledMap =
       mapValues(
         keyBy(listOfEnabledDisabledFlags, 'fieldName'),
         'isEnabled'
       );
-
     this._enabledDisabledMap = enabledDisabledMap;
-    this.setState({ enabledDisabledMap });
+    this.setState({ enabledDisabledMap, recentlyChangedMap: newValues });
+  }
+
+  updateValues(changedValues: Object, template: Object, sectionId: string) {
+    Object.keys(template).forEach(field => {
+      const value = template[field]
+      const changeCondition = get(value, ['meta', 'forceChangeValue']);
+
+      if (changeCondition && changedValues[get(changeCondition, ['rightValue', 'path', '1'])]
+            && resolveCondition(changeCondition, '', this.getValidationContext())) {
+        resolveCondition(changeCondition, get(changeCondition, ['rightValue', 'path', '1']), this.getValidationContext())
+        this.props.wholeFormState[this.props.formId].values[field] = changeCondition.targetValue
+      }
+    })
   }
 
   validateSynchronously() {
