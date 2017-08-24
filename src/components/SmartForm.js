@@ -13,7 +13,7 @@ import getResultOfValidationRule from '../utils/getResultOfValidationRule';
 // $FlowFixMe
 import { connect } from 'react-redux';
 // $FlowFixMe
-import { reduxForm, Field } from 'redux-form';
+import { reduxForm, Field, change } from 'redux-form';
 
 import resolveCondition from '../utils/resolveCondition';
 import resolveValue from '../utils/resolveValue';
@@ -25,15 +25,25 @@ type SmartFormProps = {
   iteratorComponent: IteratorComponent,
   fieldComponent: FieldComponent,
   wholeFormState: Object,
-  validators: {[type: string]: ValidatorFunction}
+  validators: {[type: string]: ValidatorFunction},
+  changeValue: Function,
 };
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    changeValue: (form, field, value) => {
+      dispatch(change(form, field, value))
+    }
+  }
+}
+
 export default connect(
-  (state) => ({ wholeFormState: state.form })
+  (state) => ({ wholeFormState: state.form }), mapDispatchToProps
 )(class SmartForm extends Component {
   props: SmartFormProps;
   state: {
-    enabledDisabledMap: {[fieldName: string]: boolean}
+    enabledDisabledMap: {[fieldName: string]: boolean},
+    currentValues: {fieldName: string, value: string},
   };
   static defaultProps = {
     reduxFormProps: {},
@@ -47,7 +57,8 @@ export default connect(
   constructor(props: SmartFormProps) {
     super(props);
     this.state = {
-      enabledDisabledMap: {}
+      enabledDisabledMap: {},
+      currentValues: {},
     };
 
     // @todo: This is a hack. Remove it, and use context types instead :)
@@ -65,7 +76,10 @@ export default connect(
   }
 
   recalculateState() {
+    const values = this.getValuesOfCurrentForm();
     const template = this.props.formTemplate;
+    const valueMap = this.state.currentValues || {}
+
     const listOfEnabledDisabledFlags =
       template.listOfFieldNames
       .map((fieldName) => ({
@@ -73,14 +87,35 @@ export default connect(
         isEnabled: this.calculateIfFieldIsEnabled(fieldName)
       }));
 
+    const newValues = {}
+    template.listOfFieldNames
+      .forEach((fieldName) => newValues[fieldName] = values[fieldName])
+
+    const changedMap = {}
+    Object.keys(newValues).forEach(value => changedMap[value] = newValues[value] !== valueMap[value])
+
+    this.updateValues(changedMap, template.fieldsByName)
+
     const enabledDisabledMap =
       mapValues(
         keyBy(listOfEnabledDisabledFlags, 'fieldName'),
         'isEnabled'
       );
-
     this._enabledDisabledMap = enabledDisabledMap;
-    this.setState({ enabledDisabledMap });
+    this.setState({ enabledDisabledMap, currentValues: newValues });
+  }
+
+  updateValues(changedValues: Object, template: Object) {
+    Object.keys(template).forEach(fieldName => {
+      const entry = template[fieldName]
+      const changeCondition = get(entry, ['meta', 'forceChangeValue']);
+
+      if (changeCondition && changedValues[get(changeCondition, ['rightValue', 'path', '1'])]
+          && resolveCondition(changeCondition, '', this.getValidationContext())) {
+
+        this.props.changeValue(this.props.formId, fieldName, changeCondition.targetValue)
+      }
+    })
   }
 
   validateSynchronously() {
