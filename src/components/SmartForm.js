@@ -34,7 +34,7 @@ export default connect(
   props: SmartFormProps;
   state: {
     enabledDisabledMap: {[fieldName: string]: boolean},
-    recentlyChangedMap: {fieldName: string, value: string},
+    currentValues: {fieldName: string, value: string},
   };
   static defaultProps = {
     reduxFormProps: {},
@@ -49,7 +49,7 @@ export default connect(
     super(props);
     this.state = {
       enabledDisabledMap: {},
-      recentlyChangedMap: {},
+      currentValues: {},
     };
 
     // @todo: This is a hack. Remove it, and use context types instead :)
@@ -69,20 +69,21 @@ export default connect(
   recalculateState() {
     const values = this.getValuesOfCurrentForm();
     const template = this.props.formTemplate;
-    const recentlyChanged = this.state.recentlyChangedMap || {}
+    const valueMap = this.state.currentValues || {}
 
     const listOfEnabledDisabledFlags =
       template.listOfFieldNames
-      .map((fieldName) => ({
-        fieldName,
-        isEnabled: this.calculateIfFieldIsEnabled(fieldName)
-      }));
+        .map((fieldName) => ({
+          fieldName,
+          isEnabled: this.calculateIfFieldIsEnabled(fieldName)
+        }));
+
     const newValues = {}
     template.listOfFieldNames
       .forEach((fieldName) => newValues[fieldName] = values[fieldName])
 
     const changedMap = {}
-    Object.keys(newValues).forEach(value => changedMap[value] = newValues[value] !== recentlyChanged[value])
+    Object.keys(newValues).forEach(value => changedMap[value] = newValues[value] !== valueMap[value])
 
     this.updateValues(changedMap, template.fieldsByName)
 
@@ -92,18 +93,17 @@ export default connect(
         'isEnabled'
       );
     this._enabledDisabledMap = enabledDisabledMap;
-    this.setState({ enabledDisabledMap, recentlyChangedMap: newValues });
+    this.setState({ enabledDisabledMap, currentValues: newValues });
   }
 
-  updateValues(changedValues: Object, template: Object, sectionId: string) {
-    Object.keys(template).forEach(field => {
-      const value = template[field]
-      const changeCondition = get(value, ['meta', 'forceChangeValue']);
+  updateValues(changedValues: Object, template: Object) {
+    Object.keys(template).forEach(fieldName => {
+      const entry = template[fieldName]
+      const changeCondition = get(entry, ['meta', 'forceChangeValue']);
 
       if (changeCondition && changedValues[get(changeCondition, ['rightValue', 'path', '1'])]
-            && resolveCondition(changeCondition, '', this.getValidationContext())) {
-        resolveCondition(changeCondition, get(changeCondition, ['rightValue', 'path', '1']), this.getValidationContext())
-        this.props.wholeFormState[this.props.formId].values[field] = changeCondition.targetValue
+        && resolveCondition(changeCondition, '', this.getValidationContext())) {
+        this.props.wholeFormState[this.props.formId].values[fieldName] = changeCondition.targetValue
       }
     })
   }
@@ -113,11 +113,11 @@ export default connect(
     const template = this.props.formTemplate;
     const listOfValidationMessages =
       template.listOfFieldNames
-      .map((fieldName) => ({
-        fieldName,
-        message: this.getValidationMessageForField(fieldName)
-      }))
-      .filter(({ message }) => typeof message === 'string' && message.length > 0);
+        .map((fieldName) => ({
+          fieldName,
+          message: this.getValidationMessageForField(fieldName)
+        }))
+        .filter(({ message }) => typeof message === 'string' && message.length > 0);
 
     const validationMessages =
       mapValues(
