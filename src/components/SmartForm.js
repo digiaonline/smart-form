@@ -73,10 +73,10 @@ export default connect(
 
     const listOfEnabledDisabledFlags =
       template.listOfFieldNames
-        .map((fieldName) => ({
-          fieldName,
-          isEnabled: this.calculateIfFieldIsEnabled(fieldName)
-        }));
+      .map((fieldName) => ({
+        fieldName,
+        isEnabled: this.calculateIfFieldIsEnabled(fieldName)
+      }));
 
     const newValues = {}
     template.listOfFieldNames
@@ -113,11 +113,11 @@ export default connect(
     const template = this.props.formTemplate;
     const listOfValidationMessages =
       template.listOfFieldNames
-        .map((fieldName) => ({
-          fieldName,
-          message: this.getValidationMessageForField(fieldName)
-        }))
-        .filter(({ message }) => typeof message === 'string' && message.length > 0);
+      .map((fieldName) => ({
+        fieldName,
+        message: this.getValidationMessageForField(fieldName)
+      }))
+      .filter(({ message }) => typeof message === 'string' && message.length > 0);
 
     const validationMessages =
       mapValues(
