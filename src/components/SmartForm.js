@@ -13,7 +13,7 @@ import getResultOfValidationRule from '../utils/getResultOfValidationRule';
 // $FlowFixMe
 import { connect } from 'react-redux';
 // $FlowFixMe
-import { reduxForm, Field } from 'redux-form';
+import { reduxForm, Field, change } from 'redux-form';
 
 import resolveCondition from '../utils/resolveCondition';
 import resolveValue from '../utils/resolveValue';
@@ -25,11 +25,20 @@ type SmartFormProps = {
   iteratorComponent: IteratorComponent,
   fieldComponent: FieldComponent,
   wholeFormState: Object,
-  validators: {[type: string]: ValidatorFunction}
+  validators: {[type: string]: ValidatorFunction},
+  changeValue: Function,
 };
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    changeValue: (form, field, value) => {
+      dispatch(change(form, field, value))
+    }
+  }
+}
+
 export default connect(
-  (state) => ({ wholeFormState: state.form })
+  (state) => ({ wholeFormState: state.form }), mapDispatchToProps
 )(class SmartForm extends Component {
   props: SmartFormProps;
   state: {
@@ -102,8 +111,9 @@ export default connect(
       const changeCondition = get(entry, ['meta', 'forceChangeValue']);
 
       if (changeCondition && changedValues[get(changeCondition, ['rightValue', 'path', '1'])]
-        && resolveCondition(changeCondition, '', this.getValidationContext())) {
-        this.props.wholeFormState[this.props.formId].values[fieldName] = changeCondition.targetValue
+          && resolveCondition(changeCondition, '', this.getValidationContext())) {
+
+        this.props.changeValue(this.props.formId, fieldName, changeCondition.targetValue)
       }
     })
   }
