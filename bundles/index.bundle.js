@@ -43,7 +43,7 @@ module.exports =
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -65,9 +65,9 @@ module.exports =
 	exports.SmartForm = _SmartForm2.default;
 	exports.defaultValidators = _defaultValidators2.default;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -139,9 +139,17 @@ module.exports =
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    changeValue: function changeValue(form, field, value) {
+	      dispatch((0, _reduxForm.change)(form, field, value));
+	    }
+	  };
+	};
+	
 	exports.default = (0, _reactRedux.connect)(function (state) {
 	  return { wholeFormState: state.form };
-	})((_temp = _class = function (_Component) {
+	}, mapDispatchToProps)((_temp = _class = function (_Component) {
 	  _inherits(SmartForm, _Component);
 	
 	  function SmartForm(props) {
@@ -150,7 +158,8 @@ module.exports =
 	    var _this = _possibleConstructorReturn(this, (SmartForm.__proto__ || Object.getPrototypeOf(SmartForm)).call(this, props));
 	
 	    _this.state = {
-	      enabledDisabledMap: {}
+	      enabledDisabledMap: {},
+	      currentValues: {}
 	    };
 	
 	    // @todo: This is a hack. Remove it, and use context types instead :)
@@ -174,7 +183,10 @@ module.exports =
 	    value: function recalculateState() {
 	      var _this2 = this;
 	
+	      var values = this.getValuesOfCurrentForm();
 	      var template = this.props.formTemplate;
+	      var valueMap = this.state.currentValues || {};
+	
 	      var listOfEnabledDisabledFlags = template.listOfFieldNames.map(function (fieldName) {
 	        return {
 	          fieldName: fieldName,
@@ -182,22 +194,48 @@ module.exports =
 	        };
 	      });
 	
-	      var enabledDisabledMap = (0, _mapValues2.default)((0, _keyBy2.default)(listOfEnabledDisabledFlags, 'fieldName'), 'isEnabled');
+	      var newValues = {};
+	      template.listOfFieldNames.forEach(function (fieldName) {
+	        return newValues[fieldName] = values[fieldName];
+	      });
 	
+	      var changedMap = {};
+	      Object.keys(newValues).forEach(function (value) {
+	        return changedMap[value] = newValues[value] !== valueMap[value];
+	      });
+	
+	      this.updateValues(changedMap, template.fieldsByName);
+	
+	      var enabledDisabledMap = (0, _mapValues2.default)((0, _keyBy2.default)(listOfEnabledDisabledFlags, 'fieldName'), 'isEnabled');
 	      this._enabledDisabledMap = enabledDisabledMap;
-	      this.setState({ enabledDisabledMap: enabledDisabledMap });
+	      this.setState({ enabledDisabledMap: enabledDisabledMap, currentValues: newValues });
+	    }
+	  }, {
+	    key: 'updateValues',
+	    value: function updateValues(changedValues, template) {
+	      var _this3 = this;
+	
+	      Object.keys(template).forEach(function (fieldName) {
+	        var entry = template[fieldName];
+	        var changeCondition = (0, _get2.default)(entry, ['meta', 'forceChangeValue']);
+	
+	        if (changeCondition && changedValues[(0, _get2.default)(changeCondition, ['rightValue', 'path', '1'])] && (0, _resolveCondition2.default)(changeCondition, '', _this3.getValidationContext())) {
+	
+	          _this3.props.changeValue(_this3.props.formId, fieldName, changeCondition.targetValue);
+	        }
+	      });
 	    }
 	  }, {
 	    key: 'validateSynchronously',
 	    value: function validateSynchronously() {
-	      var _this3 = this;
+	      var _this4 = this;
 	
 	      this.recalculateState();
 	      var template = this.props.formTemplate;
 	      var listOfValidationMessages = template.listOfFieldNames.map(function (fieldName) {
 	        return {
 	          fieldName: fieldName,
-	          message: _this3.getValidationMessageForField(fieldName)
+	          message: _this4.getValidationMessageForField(fieldName)
 	        };
 	      }).filter(function (_ref) {
 	        var message = _ref.message;
@@ -281,9 +319,9 @@ module.exports =
 	  }, {
 	    key: 'renderField',
 	    value: function renderField(fieldName) {
-	      var _props = this.props;
-	      var fieldComponent = _props.fieldComponent;
-	      var formTemplate = _props.formTemplate;
+	      var _props = this.props,
+	          fieldComponent = _props.fieldComponent,
+	          formTemplate = _props.formTemplate;
 	
 	      var fieldTemplate = formTemplate.fieldsByName[fieldName];
 	      if (!fieldTemplate) {
@@ -324,15 +362,15 @@ module.exports =
 	  return children;
 	});
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = require("react");
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -347,8 +385,8 @@ module.exports =
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = function (_ref) {
-	  var formTemplate = _ref.formTemplate;
-	  var renderField = _ref.renderField;
+	  var formTemplate = _ref.formTemplate,
+	      renderField = _ref.renderField;
 	  return _react2.default.createElement(
 	    'div',
 	    { key: 'container' },
@@ -358,9 +396,9 @@ module.exports =
 	  );
 	};
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -408,9 +446,9 @@ module.exports =
 	
 	exports.default = DefaultFieldComponent;
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -438,9 +476,9 @@ module.exports =
 	
 	exports.default = { Required: _validateRequired2.default, RequiredIf: _validateRequiredIf2.default, RequiredIfEnabled: _validateRequiredIfEnabled2.default, ConditionIsMet: _validateConditionIsMet2.default };
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -456,9 +494,9 @@ module.exports =
 	  return hasValue ? undefined : rule.message;
 	}
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -467,17 +505,17 @@ module.exports =
 	});
 	exports.default = validateRequiredIf;
 	function validateRequiredIf(rule, props) {
-	  var currentValue = props.currentValue;
-	  var resolveCondition = props.resolveCondition;
+	  var currentValue = props.currentValue,
+	      resolveCondition = props.resolveCondition;
 	
 	  var hasValue = !(currentValue == null || currentValue == undefined || typeof currentValue === 'string' && currentValue.trim().length === 0);
 	
 	  return !hasValue && resolveCondition(rule.condition, currentValue, props) ? rule.message : undefined;
 	}
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -486,17 +524,17 @@ module.exports =
 	});
 	exports.default = validateRequiredIfEnabled;
 	function validateRequiredIfEnabled(rule, _ref) {
-	  var currentValue = _ref.currentValue;
-	  var isEnabled = _ref.isEnabled;
+	  var currentValue = _ref.currentValue,
+	      isEnabled = _ref.isEnabled;
 	
 	  var hasValue = !(currentValue == null || currentValue == undefined || typeof currentValue === 'string' && currentValue.trim().length === 0);
 	
 	  return isEnabled && !hasValue ? rule.message : undefined;
 	}
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -505,34 +543,34 @@ module.exports =
 	});
 	exports.default = validateRequiredIf;
 	function validateRequiredIf(rule, props) {
-	  var currentValue = props.currentValue;
-	  var resolveCondition = props.resolveCondition;
+	  var currentValue = props.currentValue,
+	      resolveCondition = props.resolveCondition;
 	
 	
 	  return resolveCondition(rule.condition, currentValue, props) ? undefined : rule.message;
 	}
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = require("lodash/mapValues");
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = require("lodash/keyBy");
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = require("lodash/get");
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -550,21 +588,21 @@ module.exports =
 	  }
 	}
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = require("react-redux");
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = require("redux-form");
 
-/***/ },
+/***/ }),
 /* 16 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -596,9 +634,9 @@ module.exports =
 	  }
 	}
 
-/***/ },
+/***/ }),
 /* 17 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -630,6 +668,6 @@ module.exports =
 	  }
 	}
 
-/***/ }
+/***/ })
 /******/ ]);
 //# sourceMappingURL=index.bundle.js.map
